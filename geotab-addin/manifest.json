@@ -4,13 +4,13 @@
   "version": "1.0.0",
   "items": [
     {
-      "url": "https://TU_DOMINIO/geotab-addin/index.html",
-      "path": "exceptionsReportAddin",
+      "url": "https://dsanchodigittecnic.github.io/geotab-exceptions/geotab-addin/index.html",
+      "path": "",
       "menuName": {
         "en": "Exceptions Report",
         "es": "Reporte Excepciones"
       },
-      "icon": "https://TU_DOMINIO/geotab-addin/icon.svg"
+      "icon": "https://dsanchodigittecnic.github.io/geotab-exceptions/geotab-addin/icon.svg"
     }
   ]
 }
