@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Geotab Exceptions Add-In</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://my.geotab.com/apiv1"></script>
+</head>
+<body>
+  <main class="container">
+    <h1>Reporte de Excepciones por Grupo</h1>
+    <p class="subtitle">Versión add-in basada en la lógica de app3.py</p>
+
+    <form id="report-form" class="panel">
+      <label>
+        Grupo (ID o nombre)
+        <input id="groupInput" type="text" required placeholder="b2B01 o Nombre del grupo" />
+      </label>
+
+      <label>
+        Diagnóstico
+        <select id="diagnosticInput">
+          <option value="DiagnosticAux1Id" selected>DiagnosticAux1Id (AUX)</option>
+          <option value="DiagnosticPowerTakeoffEngagedId">DiagnosticPowerTakeoffEngagedId (FMS)</option>
+        </select>
+      </label>
+
+      <div class="row">
+        <label>
+          Desde (UTC)
+          <input id="fromInput" type="datetime-local" required />
+        </label>
+        <label>
+          Hasta (UTC)
+          <input id="toInput" type="datetime-local" required />
+        </label>
+      </div>
+
+      <label class="check">
+        <input id="includeSubgroupsInput" type="checkbox" />
+        Incluir subgrupos
+      </label>
+
+      <label>
+        Nombre de archivo (opcional)
+        <input id="outFileInput" type="text" placeholder="geotab_reporte.xlsx" />
+      </label>
+
+      <div class="actions">
+        <button id="runBtn" type="submit">Generar Excel</button>
+      </div>
+    </form>
+
+    <section class="panel">
+      <h2>Estado</h2>
+      <pre id="log"></pre>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

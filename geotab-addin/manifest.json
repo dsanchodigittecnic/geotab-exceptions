@@ -1,0 +1,16 @@
+{
+  "name": "ExceptionsReportAddin",
+  "supportEmail": "soporte@tuempresa.com",
+  "version": "1.0.0",
+  "items": [
+    {
+      "url": "https://TU_DOMINIO/geotab-addin/index.html",
+      "path": "exceptionsReportAddin",
+      "menuName": {
+        "en": "Exceptions Report",
+        "es": "Reporte Excepciones"
+      },
+      "icon": "https://TU_DOMINIO/geotab-addin/icon.svg"
+    }
+  ]
+}
