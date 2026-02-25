@@ -49,6 +49,16 @@
 
     <section class="panel">
       <h2>Tabla de datos</h2>
+      <label>
+        Buscar vehiculo
+        <input id="vehicleSearchInput" type="text" placeholder="Escribe nombre de vehiculo..." />
+      </label>
+      <label>
+        Filtrar por regla
+        <select id="ruleFilterInput">
+          <option value="">Todas las reglas</option>
+        </select>
+      </label>
       <div id="tableLoading" class="table-loading hidden">
         <span class="spinner" aria-hidden="true"></span>
         Procesando datos, espera...

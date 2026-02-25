@@ -18,7 +18,8 @@
 
   var ctx = {
     api: null,
-    initialized: false
+    initialized: false,
+    lastTableRows: null
   };
 
   var DIAGNOSTIC_BY_GROUP = {
@@ -345,6 +346,10 @@
     if (!container) {
       return;
     }
+    var searchEl = $("vehicleSearchInput");
+    var ruleFilterEl = $("ruleFilterInput");
+    var query = searchEl ? searchEl.value.trim().toLowerCase() : "";
+    var selectedRule = ruleFilterEl ? ruleFilterEl.value : "";
 
     if (!rows || rows.length < 2) {
       container.className = "table-empty";
@@ -354,6 +359,28 @@
 
     var header = rows[0];
     var body = rows.slice(1);
+    var vehicleColIndex = header.indexOf("Vehiculo");
+    var ruleColIndex = header.indexOf("Regla");
+
+    if (query && vehicleColIndex >= 0) {
+      body = body.filter(function (row) {
+        var vehicle = row[vehicleColIndex];
+        return String(vehicle === null || vehicle === undefined ? "" : vehicle).toLowerCase().indexOf(query) !== -1;
+      });
+    }
+
+    if (selectedRule && ruleColIndex >= 0) {
+      body = body.filter(function (row) {
+        return String(row[ruleColIndex] === null || row[ruleColIndex] === undefined ? "" : row[ruleColIndex]) === selectedRule;
+      });
+    }
+
+    if (!body.length) {
+      container.className = "table-empty";
+      container.textContent = "No hay coincidencias para los filtros seleccionados.";
+      return;
+    }
+
     var visibleCols = [];
 
     for (var i = 0; i < header.length; i += 1) {
@@ -384,6 +411,45 @@
     html += "</tbody></table></div>";
     container.className = "";
     container.innerHTML = html;
+  }
+
+  function populateRuleFilter(rows) {
+    var select = $("ruleFilterInput");
+    if (!select || !rows || rows.length < 2) {
+      return;
+    }
+
+    var current = select.value;
+    var header = rows[0];
+    var body = rows.slice(1);
+    var ruleColIndex = header.indexOf("Regla");
+    var seen = {};
+    var rules = [];
+
+    if (ruleColIndex >= 0) {
+      for (var i = 0; i < body.length; i += 1) {
+        var rule = String(body[i][ruleColIndex] === null || body[i][ruleColIndex] === undefined ? "" : body[i][ruleColIndex]);
+        if (rule && !seen[rule]) {
+          seen[rule] = true;
+          rules.push(rule);
+        }
+      }
+    }
+
+    rules.sort();
+    select.innerHTML = "<option value=\"\">Todas las reglas</option>";
+    for (var r = 0; r < rules.length; r += 1) {
+      var option = document.createElement("option");
+      option.value = rules[r];
+      option.textContent = rules[r];
+      select.appendChild(option);
+    }
+
+    if (current && seen[current]) {
+      select.value = current;
+    } else {
+      select.value = "";
+    }
   }
 
   function renderTableMessage(message, isError) {
@@ -681,7 +747,9 @@
         renderTableMessage("Procesando datos...", false);
         log("Iniciando generacion de tabla...");
         var reportData = await generateReportData(params);
-        renderResultsTable(reportData.rows2);
+        ctx.lastTableRows = reportData.rows2;
+        populateRuleFilter(ctx.lastTableRows);
+        renderResultsTable(ctx.lastTableRows);
       } catch (err) {
         var errMsg = err && err.message ? err.message : String(err);
         log("ERROR: " + errMsg);
@@ -689,6 +757,18 @@
       } finally {
         setTableLoading(false);
         setFormEnabled(true);
+      }
+    });
+
+    $("vehicleSearchInput").addEventListener("input", function () {
+      if (ctx.lastTableRows) {
+        renderResultsTable(ctx.lastTableRows);
+      }
+    });
+
+    $("ruleFilterInput").addEventListener("change", function () {
+      if (ctx.lastTableRows) {
+        renderResultsTable(ctx.lastTableRows);
       }
     });
 
