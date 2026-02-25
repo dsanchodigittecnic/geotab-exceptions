@@ -20,9 +20,10 @@ body {
 }
 
 .container {
-  max-width: 900px;
-  margin: 24px auto;
-  padding: 0 16px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 16px;
 }
 
 h1 {
@@ -152,7 +153,7 @@ button:disabled {
 .results-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 820px;
+  min-width: 100%;
   font-size: 13px;
 }
 
