@@ -114,6 +114,12 @@ button:disabled {
   font-size: 14px;
 }
 
+.table-error {
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .table-loading {
   display: flex;
   align-items: center;

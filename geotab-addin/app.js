@@ -337,7 +337,7 @@
 
     if (!rows || rows.length < 2) {
       container.className = "table-empty";
-      container.textContent = "No hay datos para mostrar.";
+      container.textContent = "No hay datos para mostrar con esos filtros.";
       return;
     }
 
@@ -365,6 +365,15 @@
     html += "</tbody></table></div>";
     container.className = "";
     container.innerHTML = html;
+  }
+
+  function renderTableMessage(message, isError) {
+    var container = $("tableContainer");
+    if (!container) {
+      return;
+    }
+    container.className = isError ? "table-error" : "table-empty";
+    container.textContent = message;
   }
 
   function setTableLoading(loading) {
@@ -649,11 +658,14 @@
 
         setFormEnabled(false);
         setTableLoading(true);
+        renderTableMessage("Procesando datos...", false);
         log("Iniciando generacion de tabla...");
         var reportData = await generateReportData(params);
         renderResultsTable(reportData.rows2);
       } catch (err) {
-        log("ERROR: " + (err && err.message ? err.message : String(err)));
+        var errMsg = err && err.message ? err.message : String(err);
+        log("ERROR: " + errMsg);
+        renderTableMessage("Error al generar tabla: " + errMsg, true);
       } finally {
         setTableLoading(false);
         setFormEnabled(true);
