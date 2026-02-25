@@ -1,10 +1,6 @@
 (function () {
   "use strict";
 
-  var DEFAULT_FROM_DATE = "2026-02-18T23:00:00.000Z";
-  var DEFAULT_TO_DATE = "2026-02-19T22:59:59.000Z";
-  var DEFAULT_DIAGNOSTIC_ID = "DiagnosticAux1Id";
-
   var RULES_BY_DIAGNOSTIC = {
     DiagnosticPowerTakeoffEngagedId: [
       "aMJv_sZ41UUSTPJqNHmcCAw",
@@ -23,6 +19,11 @@
   var ctx = {
     api: null,
     initialized: false
+  };
+
+  var DIAGNOSTIC_BY_GROUP = {
+    b2B01: "DiagnosticPowerTakeoffEngagedId",
+    b2B02: "DiagnosticAux1Id"
   };
 
   function $(id) {
@@ -57,6 +58,14 @@
 
   function toInputDatetime(iso) {
     return iso.slice(0, 16);
+  }
+
+  function getYesterdayUtcRange() {
+    var now = new Date();
+    var y = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
+    var fromDate = new Date(Date.UTC(y.getUTCFullYear(), y.getUTCMonth(), y.getUTCDate(), 0, 0, 0, 0)).toISOString();
+    var toDate = new Date(Date.UTC(y.getUTCFullYear(), y.getUTCMonth(), y.getUTCDate(), 23, 59, 59, 0)).toISOString();
+    return { fromDate: fromDate, toDate: toDate };
   }
 
   function inputDatetimeToUtcIso(value) {
@@ -592,9 +601,14 @@
   function readParamsFromForm() {
     var fromValue = $("fromInput").value;
     var toValue = $("toInput").value;
+    var groupInput = $("groupInput").value;
+    var diagnosticId = DIAGNOSTIC_BY_GROUP[groupInput];
 
     if (!fromValue || !toValue) {
       throw new Error("Debes completar las fechas Desde/Hasta.");
+    }
+    if (!groupInput || !diagnosticId) {
+      throw new Error("Debes seleccionar un grupo valido.");
     }
 
     var fromDate = inputDatetimeToUtcIso(fromValue);
@@ -605,8 +619,8 @@
     }
 
     return {
-      groupInput: $("groupInput").value.trim(),
-      diagnosticId: $("diagnosticInput").value,
+      groupInput: groupInput,
+      diagnosticId: diagnosticId,
       fromDate: fromDate,
       toDate: toDate,
       includeSubgroups: $("includeSubgroupsInput").checked,
@@ -619,9 +633,9 @@
       return;
     }
 
-    $("fromInput").value = toInputDatetime(DEFAULT_FROM_DATE);
-    $("toInput").value = toInputDatetime(DEFAULT_TO_DATE);
-    $("diagnosticInput").value = DEFAULT_DIAGNOSTIC_ID;
+    var defaultRange = getYesterdayUtcRange();
+    $("fromInput").value = toInputDatetime(defaultRange.fromDate);
+    $("toInput").value = toInputDatetime(defaultRange.toDate);
 
     $("report-form").addEventListener("submit", async function (ev) {
       ev.preventDefault();
@@ -630,7 +644,7 @@
       try {
         var params = readParamsFromForm();
         if (!params.groupInput) {
-          throw new Error("Debes indicar un grupo (id o nombre).");
+          throw new Error("Debes seleccionar un grupo.");
         }
 
         setFormEnabled(false);
@@ -649,7 +663,7 @@
       try {
         var params = readParamsFromForm();
         if (!params.groupInput) {
-          throw new Error("Debes indicar un grupo (id o nombre).");
+          throw new Error("Debes seleccionar un grupo.");
         }
 
         setFormEnabled(false);

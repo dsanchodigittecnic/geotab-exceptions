@@ -14,15 +14,10 @@
 
     <form id="report-form" class="panel">
       <label>
-        Grupo (ID o nombre)
-        <input id="groupInput" type="text" required placeholder="b2B01 o Nombre del grupo" />
-      </label>
-
-      <label>
-        Diagnóstico
-        <select id="diagnosticInput">
-          <option value="DiagnosticAux1Id" selected>DiagnosticAux1Id (AUX)</option>
-          <option value="DiagnosticPowerTakeoffEngagedId">DiagnosticPowerTakeoffEngagedId (FMS)</option>
+        Grupo
+        <select id="groupInput" required>
+          <option value="b2B01">b2B01 -> toma de fuerza por FMS</option>
+          <option value="b2B02" selected>b2B02 -> toma de fuerza por AUX</option>
         </select>
       </label>
 
