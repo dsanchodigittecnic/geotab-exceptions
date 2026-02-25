@@ -354,18 +354,26 @@
 
     var header = rows[0];
     var body = rows.slice(1);
+    var visibleCols = [];
+
+    for (var i = 0; i < header.length; i += 1) {
+      if (header[i] !== "Device ID") {
+        visibleCols.push(i);
+      }
+    }
 
     var html = "<div class=\"table-wrap\"><table class=\"results-table\"><thead><tr>";
-    for (var h = 0; h < header.length; h += 1) {
-      html += "<th>" + escapeHtml(header[h]) + "</th>";
+    for (var h = 0; h < visibleCols.length; h += 1) {
+      html += "<th>" + escapeHtml(header[visibleCols[h]]) + "</th>";
     }
     html += "</tr></thead><tbody>";
 
     for (var r = 0; r < body.length; r += 1) {
       html += "<tr>";
-      for (var c = 0; c < body[r].length; c += 1) {
-        var cell = body[r][c];
-        if (typeof cell === "number" && c === 6) {
+      for (var c = 0; c < visibleCols.length; c += 1) {
+        var colIndex = visibleCols[c];
+        var cell = body[r][colIndex];
+        if (typeof cell === "number" && colIndex === 6) {
           cell = (cell * 100).toFixed(1) + "%";
         }
         html += "<td>" + escapeHtml(cell === null || cell === undefined ? "" : cell) + "</td>";
