@@ -535,7 +535,6 @@
       ["Diagnostic ID", diagnosticId],
       ["Reglas (nombres)", ruleNames.join(", ")]
     ];
-    addSheet(wb, "00_Parametros", rows0);
 
     var rows1 = [["Regla", "Excepciones (grupo)", "Segmentos valor=1 (grupo)", "Segmentos con solape", "% solape (solape/segmentos)"]];
     for (i = 0; i < ruleNames.length; i += 1) {
@@ -545,13 +544,10 @@
       var pctGroup = totalSegmentsGroup ? ovGroup / totalSegmentsGroup : 0;
       rows1.push([rnGroup, excGroup, totalSegmentsGroup, ovGroup, pctGroup]);
     }
-    addSheet(wb, "01_Resumen_grupo", rows1);
 
     var rows2 = [["Vehiculo", "Device ID", "Regla", "Segmentos valor=1", "Excepciones", "Segmentos con solape", "% solape"]].concat(rowsPorVehiculo);
-    addSheet(wb, "02_Por_vehiculo", rows2);
 
     var rows3 = [["Vehiculo", "Device ID", "Inicio segmento", "Fin segmento", "Duracion (s)", "Duracion (min)"]].concat(rowsSegmentos);
-    addSheet(wb, "03_Segmentos_1", rows3);
 
     var rows4 = [["Vehiculo", "Device ID", "Regla", "Inicio excepcion", "Fin excepcion", "Duracion (s)", "Duracion (min)"]].concat(rowsExcepciones);
     return {
