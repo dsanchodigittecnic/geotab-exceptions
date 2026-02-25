@@ -80,6 +80,8 @@ button {
 
 .actions {
   margin-top: 10px;
+  display: flex;
+  gap: 10px;
 }
 
 button {
@@ -99,14 +101,47 @@ button:disabled {
   cursor: default;
 }
 
-#log {
-  background: #0b1220;
-  color: #dbeafe;
+#tableBtn {
+  background: #1d4ed8;
+}
+
+#tableBtn:hover {
+  background: #1e40af;
+}
+
+.table-empty {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 12px;
-  min-height: 140px;
-  white-space: pre-wrap;
-  margin: 0;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 820px;
+  font-size: 13px;
+}
+
+.results-table th,
+.results-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.results-table th {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.results-table tr:nth-child(even) td {
+  background: #fbfdff;
 }
 
 @media (max-width: 700px) {

@@ -32,12 +32,19 @@
   function log(message) {
     var logEl = $("log");
     var now = new Date().toISOString().replace("T", " ").slice(0, 19);
+    if (!logEl) {
+      return;
+    }
     logEl.textContent += "[" + now + "] " + message + "\n";
     logEl.scrollTop = logEl.scrollHeight;
   }
 
   function clearLog() {
-    $("log").textContent = "";
+    var logEl = $("log");
+    if (!logEl) {
+      return;
+    }
+    logEl.textContent = "";
   }
 
   function setFormEnabled(enabled) {
@@ -313,6 +320,53 @@
       .replace(/_+/g, "_");
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function renderResultsTable(rows) {
+    var container = $("tableContainer");
+    if (!container) {
+      return;
+    }
+
+    if (!rows || rows.length < 2) {
+      container.className = "table-empty";
+      container.textContent = "No hay datos para mostrar.";
+      return;
+    }
+
+    var header = rows[0];
+    var body = rows.slice(1);
+
+    var html = "<div class=\"table-wrap\"><table class=\"results-table\"><thead><tr>";
+    for (var h = 0; h < header.length; h += 1) {
+      html += "<th>" + escapeHtml(header[h]) + "</th>";
+    }
+    html += "</tr></thead><tbody>";
+
+    for (var r = 0; r < body.length; r += 1) {
+      html += "<tr>";
+      for (var c = 0; c < body[r].length; c += 1) {
+        var cell = body[r][c];
+        if (typeof cell === "number" && c === 6) {
+          cell = (cell * 100).toFixed(1) + "%";
+        }
+        html += "<td>" + escapeHtml(cell === null || cell === undefined ? "" : cell) + "</td>";
+      }
+      html += "</tr>";
+    }
+
+    html += "</tbody></table></div>";
+    container.className = "";
+    container.innerHTML = html;
+  }
+
   function addSheet(workbook, sheetName, rows) {
     var ws = XLSX.utils.aoa_to_sheet(rows);
     ws["!cols"] = autosizeColumns(rows);
@@ -330,7 +384,7 @@
     }
   }
 
-  async function generateReport(params) {
+  async function generateReportData(params) {
     var diagnosticId = params.diagnosticId;
     if (!RULES_BY_DIAGNOSTIC[diagnosticId]) {
       throw new Error("Diagnostico no soportado: " + diagnosticId);
@@ -448,8 +502,6 @@
       log("Procesado: " + deviceName + " | segmentos: " + segmentsCount + " | excepciones: " + exceptions.length);
     }
 
-    var wb = XLSX.utils.book_new();
-
     var rows0 = [
       ["Campo", "Valor"],
       ["Grupo (input)", params.groupInput],
@@ -481,17 +533,36 @@
     addSheet(wb, "03_Segmentos_1", rows3);
 
     var rows4 = [["Vehiculo", "Device ID", "Regla", "Inicio excepcion", "Fin excepcion", "Duracion (s)", "Duracion (min)"]].concat(rowsExcepciones);
-    addSheet(wb, "04_Excepciones", rows4);
+    return {
+      rows0: rows0,
+      rows1: rows1,
+      rows2: rows2,
+      rows3: rows3,
+      rows4: rows4,
+      groupName: group.name,
+      fromDate: fromDate,
+      toDate: toDate,
+      diagnosticId: diagnosticId
+    };
+  }
+
+  function downloadExcel(params, reportData) {
+    var wb = XLSX.utils.book_new();
+    addSheet(wb, "00_Parametros", reportData.rows0);
+    addSheet(wb, "01_Resumen_grupo", reportData.rows1);
+    addSheet(wb, "02_Por_vehiculo", reportData.rows2);
+    addSheet(wb, "03_Segmentos_1", reportData.rows3);
+    addSheet(wb, "04_Excepciones", reportData.rows4);
 
     var ws1 = wb.Sheets["01_Resumen_grupo"];
     var ws2 = wb.Sheets["02_Por_vehiculo"];
-    setPercentColumn(ws1, 5, 2, rows1.length);
-    setPercentColumn(ws2, 7, 2, rows2.length);
+    setPercentColumn(ws1, 5, 2, reportData.rows1.length);
+    setPercentColumn(ws2, 7, 2, reportData.rows2.length);
 
-    var safeGroup = safeFileName(group.name || params.groupInput);
+    var safeGroup = safeFileName(reportData.groupName || params.groupInput);
     var outName = (params.outFile || "").trim();
     if (!outName) {
-      outName = "geotab_" + safeGroup + "_" + fromDate.slice(0, 10) + "_" + toDate.slice(0, 10) + "_" + diagnosticId + ".xlsx";
+      outName = "geotab_" + safeGroup + "_" + reportData.fromDate.slice(0, 10) + "_" + reportData.toDate.slice(0, 10) + "_" + reportData.diagnosticId + ".xlsx";
     }
     if (!/\.xlsx$/i.test(outName)) {
       outName += ".xlsx";
@@ -547,7 +618,27 @@
 
         setFormEnabled(false);
         log("Iniciando generacion del reporte...");
-        await generateReport(params);
+        var reportData = await generateReportData(params);
+        downloadExcel(params, reportData);
+      } catch (err) {
+        log("ERROR: " + (err && err.message ? err.message : String(err)));
+      } finally {
+        setFormEnabled(true);
+      }
+    });
+
+    $("tableBtn").addEventListener("click", async function () {
+      clearLog();
+      try {
+        var params = readParamsFromForm();
+        if (!params.groupInput) {
+          throw new Error("Debes indicar un grupo (id o nombre).");
+        }
+
+        setFormEnabled(false);
+        log("Iniciando generacion de tabla...");
+        var reportData = await generateReportData(params);
+        renderResultsTable(reportData.rows2);
       } catch (err) {
         log("ERROR: " + (err && err.message ? err.message : String(err)));
       } finally {
