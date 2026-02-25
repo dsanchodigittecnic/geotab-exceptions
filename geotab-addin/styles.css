@@ -114,6 +114,29 @@ button:disabled {
   font-size: 14px;
 }
 
+.table-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #bfdbfe;
+  border-top-color: #1d4ed8;
+  animation: spin 0.8s linear infinite;
+}
+
+.hidden {
+  display: none;
+}
+
 .table-wrap {
   overflow: auto;
   border: 1px solid var(--border);
@@ -142,6 +165,12 @@ button:disabled {
 
 .results-table tr:nth-child(even) td {
   background: #fbfdff;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 700px) {

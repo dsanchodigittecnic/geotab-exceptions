@@ -367,6 +367,18 @@
     container.innerHTML = html;
   }
 
+  function setTableLoading(loading) {
+    var loadingEl = $("tableLoading");
+    if (!loadingEl) {
+      return;
+    }
+    if (loading) {
+      loadingEl.classList.remove("hidden");
+    } else {
+      loadingEl.classList.add("hidden");
+    }
+  }
+
   function addSheet(workbook, sheetName, rows) {
     var ws = XLSX.utils.aoa_to_sheet(rows);
     ws["!cols"] = autosizeColumns(rows);
@@ -636,12 +648,14 @@
         }
 
         setFormEnabled(false);
+        setTableLoading(true);
         log("Iniciando generacion de tabla...");
         var reportData = await generateReportData(params);
         renderResultsTable(reportData.rows2);
       } catch (err) {
         log("ERROR: " + (err && err.message ? err.message : String(err)));
       } finally {
+        setTableLoading(false);
         setFormEnabled(true);
       }
     });
