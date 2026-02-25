@@ -60,12 +60,14 @@
     return iso.slice(0, 16);
   }
 
-  function getYesterdayUtcRange() {
+  function getYesterdayLocalRangeAsUtcIso() {
     var now = new Date();
-    var y = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
-    var fromDate = new Date(Date.UTC(y.getUTCFullYear(), y.getUTCMonth(), y.getUTCDate(), 0, 0, 0, 0)).toISOString();
-    var toDate = new Date(Date.UTC(y.getUTCFullYear(), y.getUTCMonth(), y.getUTCDate(), 23, 59, 59, 0)).toISOString();
-    return { fromDate: fromDate, toDate: toDate };
+    var fromLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
+    var toLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 0);
+    return {
+      fromDate: fromLocal.toISOString(),
+      toDate: toLocal.toISOString()
+    };
   }
 
   function inputDatetimeToUtcIso(value) {
@@ -633,7 +635,7 @@
       return;
     }
 
-    var defaultRange = getYesterdayUtcRange();
+    var defaultRange = getYesterdayLocalRangeAsUtcIso();
     $("fromInput").value = toInputDatetime(defaultRange.fromDate);
     $("toInput").value = toInputDatetime(defaultRange.toDate);
 
