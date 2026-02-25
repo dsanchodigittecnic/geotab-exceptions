@@ -5,7 +5,7 @@
   "items": [
     {
       "url": "https://dsanchodigittecnic.github.io/geotab-exceptions/geotab-addin/index.html",
-      "path": "",
+      "path": "exceptionsReportAddin",
       "menuName": {
         "en": "Exceptions Report",
         "es": "Reporte Excepciones"
